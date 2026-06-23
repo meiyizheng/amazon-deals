@@ -5,15 +5,25 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
-permissions:
-  contents: write
+concurrency:
+  group: amazon-deal-bot
+  cancel-in-progress: false
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Restore seen deals cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/seen_deals.json
+          key: seen-deals-${{ github.run_id }}
+          restore-keys: |
+            seen-deals-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,3 +37,10 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: python main.py
+
+      - name: Save seen deals cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/seen_deals.json
+          key: seen-deals-${{ github.run_id }}
