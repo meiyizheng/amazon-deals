@@ -34,7 +34,7 @@ class ConfigEnvTests(unittest.TestCase):
         self.assertEqual(reloaded.MAX_DEAL_AGE_HOURS, 6)
         self.assertEqual(reloaded.SEEN_FILE, "data/seen_deals.json")
         self.assertEqual(reloaded.KEYWORDS_FILE, "keywords.txt")
-        self.assertIn("amazon-deal-ai-bot", reloaded.USER_AGENT)
+        self.assertIn("amazon-deal-bot", reloaded.USER_AGENT)
 
     def test_environment_overrides_defaults(self) -> None:
         with patch.dict(

@@ -3,10 +3,11 @@ import calendar
 import hashlib
 import html
 import re
+import time
 from urllib.parse import urlparse
 import feedparser
 import requests
-from .config import USER_AGENT
+from .config import FEED_FETCH_DELAY, USER_AGENT
 from .models import Deal
 
 TAG_RE = re.compile(r"<[^>]+>")
@@ -30,10 +31,19 @@ def deal_id(title: str, link: str) -> str:
     return hashlib.sha256(raw).hexdigest()[:24]
 
 
-def fetch_feed(feed_url: str) -> list[Deal]:
+def fetch_feed(feed_url: str, max_retries: int = 3) -> list[Deal]:
     headers = {"User-Agent": USER_AGENT}
-    resp = requests.get(feed_url, headers=headers, timeout=25)
-    resp.raise_for_status()
+    for attempt in range(max_retries):
+        resp = requests.get(feed_url, headers=headers, timeout=25)
+        if resp.status_code == 429:
+            retry_after = float(resp.headers.get("Retry-After", 2 ** (attempt + 1)))
+            print(f"WARN: {feed_url} rate-limited (429), retrying after {retry_after:.0f}s")
+            time.sleep(retry_after)
+            continue
+        resp.raise_for_status()
+        break
+    else:
+        raise requests.HTTPError(f"Failed after {max_retries} retries: {feed_url}")
     parsed = feedparser.parse(resp.content)
     deals: list[Deal] = []
     src = source_name(feed_url)
@@ -62,7 +72,9 @@ def fetch_feed(feed_url: str) -> list[Deal]:
 
 def fetch_all(feeds: list[str]) -> list[Deal]:
     all_deals: list[Deal] = []
-    for feed in feeds:
+    for i, feed in enumerate(feeds):
+        if i > 0 and FEED_FETCH_DELAY > 0:
+            time.sleep(FEED_FETCH_DELAY)
         try:
             all_deals.extend(fetch_feed(feed))
         except Exception as exc:

@@ -68,7 +68,14 @@ MIN_SCORE_TO_NOTIFY = _env_int("MIN_SCORE_TO_NOTIFY", 5)
 MAX_ALERTS_PER_RUN = _env_int("MAX_ALERTS_PER_RUN", 10)
 # Deals older than this many hours are skipped (0 = no age filter)
 MAX_DEAL_AGE_HOURS = _env_int("MAX_DEAL_AGE_HOURS", 6)
+# Seconds to sleep between consecutive feed fetches; prevents Reddit/Slickdeals 429s
+FEED_FETCH_DELAY = _env_float("FEED_FETCH_DELAY", 1.5)
 SEEN_FILE = _env_str("SEEN_FILE", "data/seen_deals.json")
 KEYWORDS_FILE = _env_str("KEYWORDS_FILE", "keywords.txt")
 
-USER_AGENT = _env_str("USER_AGENT", "amazon-deal-ai-bot/1.0 (+https://github.com/)")
+# Reddit requires a descriptive User-Agent: "<platform>:<appID>:<version> (by /u/<username>)"
+# This format is needed to avoid 429 rate-limit blocks on Reddit RSS feeds.
+USER_AGENT = _env_str(
+    "USER_AGENT",
+    "python:amazon-deal-bot:v2.0 (by /u/amazon-deals-bot; github.com/meiyizheng/amazon-deals)",
+)

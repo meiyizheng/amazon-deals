@@ -3,12 +3,13 @@ import calendar
 import hashlib
 import html
 import re
+import time
 from urllib.parse import urlparse
 
 import feedparser
 import requests
 
-from .config import USER_AGENT
+from .config import FEED_FETCH_DELAY, USER_AGENT
 from .models import Job
 
 TAG_RE = re.compile(r"<[^>]+>")
@@ -83,10 +84,19 @@ def _clean_title(title: str) -> str:
     return title
 
 
-def fetch_feed(feed_url: str, is_remote_board: bool = True) -> list[Job]:
+def fetch_feed(feed_url: str, is_remote_board: bool = True, max_retries: int = 3) -> list[Job]:
     headers = {"User-Agent": USER_AGENT}
-    resp = requests.get(feed_url, headers=headers, timeout=25)
-    resp.raise_for_status()
+    for attempt in range(max_retries):
+        resp = requests.get(feed_url, headers=headers, timeout=25)
+        if resp.status_code == 429:
+            retry_after = float(resp.headers.get("Retry-After", 2 ** (attempt + 1)))
+            print(f"WARN: {feed_url} rate-limited (429), retrying after {retry_after:.0f}s")
+            time.sleep(retry_after)
+            continue
+        resp.raise_for_status()
+        break
+    else:
+        raise requests.HTTPError(f"Failed after {max_retries} retries: {feed_url}")
     parsed = feedparser.parse(resp.content)
     jobs: list[Job] = []
     src = _source_name(feed_url)
@@ -136,7 +146,9 @@ def fetch_feed(feed_url: str, is_remote_board: bool = True) -> list[Job]:
 
 def fetch_all(feeds: list[dict]) -> list[Job]:
     all_jobs: list[Job] = []
-    for feed in feeds:
+    for i, feed in enumerate(feeds):
+        if i > 0 and FEED_FETCH_DELAY > 0:
+            time.sleep(FEED_FETCH_DELAY)
         url = feed["url"]
         is_remote = feed.get("remote_board", False)
         try:

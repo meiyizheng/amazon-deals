@@ -22,6 +22,16 @@ def _env_int(name: str, default: int) -> int:
         raise ValueError(f"{name} must be an integer, got {v!r}") from exc
 
 
+def _env_float(name: str, default: float) -> float:
+    v = _env_value(name)
+    if v is None:
+        return default
+    try:
+        return float(v)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number, got {v!r}") from exc
+
+
 def _env_str(name: str, default: str) -> str:
     v = _env_value(name)
     return default if v is None else v
@@ -68,8 +78,12 @@ MIN_SCORE_TO_NOTIFY = _env_int("JOB_MIN_SCORE", 7)
 MAX_ALERTS_PER_RUN  = _env_int("JOB_MAX_ALERTS", 15)
 # Listings older than this many hours are skipped (0 = no age limit)
 MAX_JOB_AGE_HOURS   = _env_int("JOB_MAX_AGE_HOURS", 48)
+# Seconds to sleep between consecutive feed fetches
+FEED_FETCH_DELAY    = _env_float("JOB_FEED_FETCH_DELAY", 1.5)
 
 SEEN_FILE      = _env_str("JOB_SEEN_FILE",      "data/seen_jobs.json")
 KEYWORDS_FILE  = _env_str("JOB_KEYWORDS_FILE",  "job_keywords.txt")
-USER_AGENT     = _env_str("JOB_USER_AGENT",
-                           "remote-sde-job-bot/1.0 (+https://github.com/)")
+USER_AGENT     = _env_str(
+    "JOB_USER_AGENT",
+    "python:remote-sde-job-bot:v1.0 (by /u/amazon-deals-bot; github.com/meiyizheng/amazon-deals)",
+)
