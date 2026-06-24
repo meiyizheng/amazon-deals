@@ -61,3 +61,51 @@ python3 -m unittest discover -s tests
 ## Notes
 
 This bot uses public RSS feeds. It does not scrape Amazon product pages and does not bypass anti-bot systems.
+
+---
+
+# Remote SDE Testing Job Bot
+
+A second GitHub Actions bot that monitors remote **Software Development Engineer in Test (SDET)** job listings across multiple job boards and sends Discord alerts.
+
+## What it does
+
+- Runs every **2 hours** on GitHub Actions
+- Watches **8 RSS feeds**: RemoteOK (QA/test/SDET/dev+test categories), WeWorkRemotely (programming + all jobs), Himalayas, Arbeitnow
+- Scores listings using:
+  - SDET / SDE-in-Test title match (+8)
+  - Automation engineering terms (+5)
+  - General QA engineering (+3)
+  - Coding signals in description: Python, Selenium, Playwright, pytest, CI/CD, etc. (+1 each, up to +4)
+  - Remote board bonus (+2) or explicit remote mention in text (+3)
+  - User-defined tech-stack keywords from `job_keywords.txt`
+  - Salary listed (+1)
+- Skips listings older than 48 hours (configurable)
+- Filters noise: manual-only roles, onsite-only, no-coding-required
+- Sends tiered Discord Embeds via `JOB_DISCORD_WEBHOOK`:
+  - 🔥 完美匹配 (score ≥ 12) → green
+  - 💼 强力匹配 (score 9–11) → blue
+  - 🎯 可能匹配 (score 7–8) → grey-blue
+  - Summary embed when ≥ 3 matches per run
+
+## Setup
+
+1. In GitHub, go to `Settings` → `Secrets and variables` → `Actions`.
+2. Add a repository secret:
+   - Name: `JOB_DISCORD_WEBHOOK`
+   - Value: your Discord webhook URL (can be a different channel than the deal bot)
+3. Go to `Actions` → `Remote SDE Job Bot` → `Run workflow`.
+
+## Customize
+
+Edit `job_keywords.txt` to add the tech stack you care about (Python, Playwright, AWS, etc.) — each match raises a listing's score.
+
+Optional GitHub Actions repository variables:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `JOB_MIN_SCORE` | `7` | Minimum score before sending a Discord alert |
+| `JOB_MAX_ALERTS` | `15` | Maximum alerts per run |
+| `JOB_MAX_AGE_HOURS` | `48` | Skip listings older than this many hours |
+| `JOB_SEEN_FILE` | `data/seen_jobs.json` | Dedup cache path |
+| `JOB_KEYWORDS_FILE` | `job_keywords.txt` | Keyword list path |

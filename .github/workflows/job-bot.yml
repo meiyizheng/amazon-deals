@@ -1,0 +1,55 @@
+name: Remote SDE Job Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 2 hours — new job postings appear less frequently than deal alerts
+    - cron: "0 */2 * * *"
+
+concurrency:
+  group: remote-sde-job-bot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Restore seen jobs cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/seen_jobs.json
+          key: seen-jobs-${{ github.run_id }}
+          restore-keys: |
+            seen-jobs-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Run job bot
+        env:
+          JOB_DISCORD_WEBHOOK: ${{ secrets.JOB_DISCORD_WEBHOOK }}
+          JOB_MIN_SCORE: ${{ vars.JOB_MIN_SCORE }}
+          JOB_MAX_ALERTS: ${{ vars.JOB_MAX_ALERTS }}
+          JOB_MAX_AGE_HOURS: ${{ vars.JOB_MAX_AGE_HOURS }}
+          JOB_SEEN_FILE: ${{ vars.JOB_SEEN_FILE }}
+          JOB_KEYWORDS_FILE: ${{ vars.JOB_KEYWORDS_FILE }}
+        run: python job_main.py
+
+      - name: Save seen jobs cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/seen_jobs.json
+          key: seen-jobs-${{ github.run_id }}

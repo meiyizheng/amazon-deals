@@ -1,0 +1,49 @@
+# Tech stack keywords for Remote SDE Testing jobs
+# Add terms you care about — each match raises the listing's score.
+# One term per line. Lines starting with # are ignored.
+
+# Languages
+python
+java
+typescript
+javascript
+golang
+c#
+
+# Test frameworks
+pytest
+selenium
+playwright
+cypress
+appium
+junit
+testng
+jest
+robot framework
+
+# CI/CD and infra
+ci/cd
+jenkins
+github actions
+gitlab ci
+docker
+kubernetes
+aws
+azure
+gcp
+
+# Testing specialties
+api testing
+performance testing
+load testing
+contract testing
+chaos engineering
+observability
+e2e testing
+
+# SDET-specific signals
+test architecture
+test strategy
+shift left
+tdd
+bdd
