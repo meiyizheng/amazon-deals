@@ -1,4 +1,6 @@
 from __future__ import annotations
+import os
+import sys
 from jobbot.config import (
     FEEDS,
     KEYWORDS_FILE,
@@ -14,6 +16,12 @@ from dealbot.storage import load_seen, save_seen  # generic dedup cache, safe to
 
 
 def main() -> None:
+    if not os.getenv("JOB_DISCORD_WEBHOOK"):
+        print("ERROR: JOB_DISCORD_WEBHOOK secret is not set.")
+        print("Go to GitHub → Settings → Secrets and variables → Actions → New repository secret")
+        print("  Name:  JOB_DISCORD_WEBHOOK")
+        print("  Value: your Discord webhook URL (https://discord.com/api/webhooks/...)")
+        sys.exit(1)
     keywords = load_keywords(KEYWORDS_FILE)
     seen = load_seen(SEEN_FILE)
 

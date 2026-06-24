@@ -22,9 +22,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: data/seen_jobs.json
-          key: seen-jobs-${{ github.run_id }}
+          key: seen-jobs-v${{ vars.JOB_CACHE_VERSION || '1' }}-${{ github.run_id }}
           restore-keys: |
-            seen-jobs-
+            seen-jobs-v${{ vars.JOB_CACHE_VERSION || '1' }}-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,4 +52,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: data/seen_jobs.json
-          key: seen-jobs-${{ github.run_id }}
+          key: seen-jobs-v${{ vars.JOB_CACHE_VERSION || '1' }}-${{ github.run_id }}
