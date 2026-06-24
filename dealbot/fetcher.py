@@ -1,4 +1,5 @@
 from __future__ import annotations
+import calendar
 import hashlib
 import html
 import re
@@ -42,9 +43,20 @@ def fetch_feed(feed_url: str) -> list[Deal]:
         link = getattr(entry, "link", "") or ""
         summary = clean_html(getattr(entry, "summary", ""))
         published = getattr(entry, "published", "") or getattr(entry, "updated", "") or ""
+        # feedparser populates *_parsed as UTC time.struct_time; convert to Unix timestamp
+        parsed_struct = getattr(entry, "published_parsed", None) or getattr(entry, "updated_parsed", None)
+        published_ts = float(calendar.timegm(parsed_struct)) if parsed_struct else 0.0
         if not title or not link:
             continue
-        deals.append(Deal(id=deal_id(title, link), title=title, link=link, source=src, summary=summary, published=published))
+        deals.append(Deal(
+            id=deal_id(title, link),
+            title=title,
+            link=link,
+            source=src,
+            summary=summary,
+            published=published,
+            published_ts=published_ts,
+        ))
     return deals
 
 

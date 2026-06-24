@@ -42,6 +42,7 @@ jobs:
           MAX_PRICE_DOLLARS: ${{ vars.MAX_PRICE_DOLLARS }}
           MIN_SCORE_TO_NOTIFY: ${{ vars.MIN_SCORE_TO_NOTIFY }}
           MAX_ALERTS_PER_RUN: ${{ vars.MAX_ALERTS_PER_RUN }}
+          MAX_DEAL_AGE_HOURS: ${{ vars.MAX_DEAL_AGE_HOURS }}
           USER_AGENT: ${{ vars.USER_AGENT }}
           SEEN_FILE: ${{ vars.SEEN_FILE }}
           KEYWORDS_FILE: ${{ vars.KEYWORDS_FILE }}

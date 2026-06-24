@@ -5,8 +5,15 @@ A lightweight GitHub Actions bot that checks Slickdeals and Reddit RSS feeds, fi
 ## What it does
 
 - Runs every 5 minutes on GitHub Actions
-- Watches Slickdeals + Reddit deal feeds
-- Filters for Amazon, coupon, promo, free, price error, and <$5 deals
+- Watches **14 RSS feeds**: Slickdeals (frontpage + 4 Amazon keyword searches) and Reddit (r/amazondeals, r/extremedeals, r/Frugal, r/HotDeals, r/deals, r/buildapcsales, r/GameDeals, r/FreeGameFindings, r/frugalmalefashion)
+- Filters and scores deals using:
+  - Amazon base signal, Lightning Deal / Deal of the Day / Gold Box / Clip Coupon / Prime Exclusive / Warehouse Deal types
+  - Was→Now price-drop pattern (`was $X, now $Y` and `$X → $Y`) with calculated discount %
+  - Explicit `X% off` and `save $X` phrases
+  - User-defined brand/term keywords
+  - Low absolute price (≤ configurable threshold)
+- Skips deals older than 6 hours (configurable)
+- Filters non-US currency deals (£/€/AU$/C$ only) and noise posts ([Discussion], [Request], sold out, expired)
 - Deduplicates using a JSON cache preserved by GitHub Actions cache
 - Sends alerts to Discord via webhook
 
@@ -32,6 +39,7 @@ You can also set optional GitHub Actions repository variables without changing c
 | `MAX_PRICE_DOLLARS` | `5.00` | Highest dollar price that counts as a low-price deal |
 | `MIN_SCORE_TO_NOTIFY` | `5` | Minimum score required before sending a Discord alert |
 | `MAX_ALERTS_PER_RUN` | `10` | Maximum number of Discord alerts sent per run |
+| `MAX_DEAL_AGE_HOURS` | `6` | Skip deals older than this many hours (0 = no age filter) |
 | `USER_AGENT` | `amazon-deal-ai-bot/1.0 (+https://github.com/)` | User-Agent used for RSS requests |
 | `SEEN_FILE` | `data/seen_deals.json` | Deduplication cache path |
 | `KEYWORDS_FILE` | `keywords.txt` | Keyword list path |
