@@ -36,7 +36,6 @@ QA_ENGINEERING_TERMS: list[str] = [
     "qa engineer",
     "software quality",
     "quality assurance engineer",
-    "reliability engineer",
     "test engineer",
     "testing engineer",
 ]
