@@ -14,8 +14,14 @@ A lightweight GitHub Actions bot that checks Slickdeals and Reddit RSS feeds, fi
   - Low absolute price (≤ configurable threshold)
 - Skips deals older than 6 hours (configurable)
 - Filters non-US currency deals (£/€/AU$/C$ only) and noise posts ([Discussion], [Request], sold out, expired)
-- Deduplicates using a JSON cache preserved by GitHub Actions cache
-- Sends alerts to Discord via webhook
+- Deduplicates using a JSON cache (atomic write) preserved by GitHub Actions cache
+- Marks all evaluated deals as seen (not just notified ones) to prevent re-flood after cache eviction
+- Sends tiered Discord alerts via webhook:
+  - 🚨 **FIRE DEAL** (score ≥ 12): red embed
+  - 🔥 **Hot Deal** (score 8–11): orange embed
+  - 💰 **Good Deal** (score 5–7): green embed
+  - Consolidated summary embed when ≥ 3 deals found in one run
+  - 0.8 s inter-post delay + automatic retry on Discord 429 rate-limit
 
 ## Setup
 
