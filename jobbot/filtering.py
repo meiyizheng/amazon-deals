@@ -1,8 +1,27 @@
 from __future__ import annotations
 import re
 import time
-from .config import MAX_JOB_AGE_HOURS
+from .config import MAX_EXPERIENCE_YEARS, MAX_JOB_AGE_HOURS
 from .models import Job
+
+# ── Experience / employment-type regexes ──────────────────────────────────────
+
+# "3-5 years", "3 to 5 years", "3–5 years"
+_EXP_RANGE_RE = re.compile(
+    r"(\d+)\s*(?:[-–]|to)\s*\d+\s*\+?\s*year", re.I
+)
+# "5+ years", "5+ yrs"
+_EXP_PLUS_RE = re.compile(
+    r"(\d+)\s*\+\s*year", re.I
+)
+# "minimum 5 years", "at least 5 years", "over 5 years"
+_EXP_MIN_RE = re.compile(
+    r"(?:minimum|at\s+least|min\.?|over|more\s+than)\s+(\d+)\s*year", re.I
+)
+# plain "5 years experience" / "5 years of experience"
+_EXP_PLAIN_RE = re.compile(
+    r"(\d+)\s*years?\s*(?:of\s+)?(?:experience|exp\.?\b)", re.I
+)
 
 # ── Job-role term lists ───────────────────────────────────────────────────────
 
@@ -109,6 +128,46 @@ CODING_SIGNALS: list[str] = [
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+def extract_min_years_experience(text: str) -> int:
+    """
+    Return the minimum required years of experience found in text.
+    Returns 0 when experience is not mentioned (treated as unknown → allow).
+    Checks patterns in order of specificity.
+    """
+    # Range: take the lower bound ("3-5 years" → 3)
+    m = _EXP_RANGE_RE.search(text)
+    if m:
+        return int(m.group(1))
+    # "5+ years"
+    m = _EXP_PLUS_RE.search(text)
+    if m:
+        return int(m.group(1))
+    # "minimum 5 years"
+    m = _EXP_MIN_RE.search(text)
+    if m:
+        return int(m.group(1))
+    # plain "5 years experience"
+    m = _EXP_PLAIN_RE.search(text)
+    if m:
+        return int(m.group(1))
+    return 0
+
+
+def extract_employment_type(text: str) -> str:
+    """Return a human-readable employment type string, e.g. 'Full-time, Contract'."""
+    t = text.lower()
+    types: list[str] = []
+    if any(k in t for k in ("full-time", "full time", "permanent", "direct hire", "direct-hire")):
+        types.append("Full-time")
+    if any(k in t for k in ("contract", "contractor", "c2c", "1099", "corp-to-corp", "w2 contract")):
+        types.append("Contract")
+    if any(k in t for k in ("part-time", "part time")):
+        types.append("Part-time")
+    if "freelance" in t:
+        types.append("Freelance")
+    return ", ".join(types)
+
+
 def is_fresh(job: Job) -> bool:
     if MAX_JOB_AGE_HOURS == 0 or job.published_ts == 0:
         return True
@@ -140,6 +199,14 @@ def score_job(job: Job, keywords: list[str]) -> Job | None:
     # ── Hard drops ────────────────────────────────────────────────────────────
     if any(term in full_text for term in NOISE_TERMS):
         return None
+
+    # ── Experience filter ─────────────────────────────────────────────────────
+    min_exp = extract_min_years_experience(full_text)
+    if MAX_EXPERIENCE_YEARS > 0 and min_exp > MAX_EXPERIENCE_YEARS:
+        return None  # requires more experience than the user wants
+
+    # ── Employment type extraction ────────────────────────────────────────────
+    emp_type = extract_employment_type(full_text)
 
     # ══ Testing track ═════════════════════════════════════════════════════════
 
@@ -220,4 +287,6 @@ def score_job(job: Job, keywords: list[str]) -> Job | None:
         reason="；".join(reasons) if reasons else "可能匹配",
         salary=job.salary,
         is_remote_board=job.is_remote_board,
+        min_years_exp=min_exp,
+        employment_type=emp_type,
     )

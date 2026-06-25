@@ -1,3 +1,8 @@
 __pycache__/
 *.pyc
 .env
+# Job applier personal data — never commit these
+profile.yml
+resume.pdf
+resume*.pdf
+data/applications.json

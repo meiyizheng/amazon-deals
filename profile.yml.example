@@ -1,0 +1,38 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Job Application Profile
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Copy this file:   cp profile.yml.example profile.yml
+# 2. Fill in YOUR information below
+# 3. profile.yml is in .gitignore and will NOT be committed to GitHub
+# ─────────────────────────────────────────────────────────────────────────────
+
+personal:
+  first_name: "Your"
+  last_name:  "Name"
+  email:      "you@example.com"
+  phone:      "+1 (555) 000-0000"
+  location:   "City, State"          # shown on applications, e.g. "New York, NY"
+  linkedin_url:  "https://linkedin.com/in/yourprofile"
+  github_url:    "https://github.com/yourusername"
+  portfolio_url: ""                  # leave blank if none
+
+resume:
+  path: "resume.pdf"                 # path to your resume PDF (relative or absolute)
+
+# ── Cover letter ──────────────────────────────────────────────────────────────
+# The tool auto-detects whether the role is Java/backend/testing and picks
+# the right body paragraph. You can override any of these.
+cover_letter:
+  # Optional: override the entire template. Available variables:
+  #   {first_name} {last_name} {job_title} {company} {body_paragraph}
+  template: ""     # leave blank to use the built-in template
+
+  # Optional: write a fixed body paragraph that applies to all applications
+  body_paragraph: ""   # leave blank for auto-detection
+
+  # Optional: customise per-role paragraphs (used when body_paragraph is blank)
+  paragraphs:
+    java: ""      # leave blank to use the built-in Java paragraph
+    testing: ""   # leave blank to use the built-in testing paragraph
+    backend: ""   # leave blank to use the built-in backend paragraph
+    default: ""   # leave blank to use the built-in default paragraph

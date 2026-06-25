@@ -44,6 +44,12 @@ def _build_embed(job: Job) -> dict:
     if location_display:
         fields.append({"name": "📍 地点", "value": location_display[:100], "inline": True})
 
+    if job.employment_type:
+        fields.append({"name": "📋 类型", "value": job.employment_type[:80], "inline": True})
+
+    if job.min_years_exp > 0:
+        fields.append({"name": "🗓 经验要求", "value": f"≤{job.min_years_exp} 年", "inline": True})
+
     if job.salary:
         fields.append({"name": "💰 薪资", "value": job.salary[:100], "inline": True})
 
