@@ -106,7 +106,8 @@ class ScoreJobTests(unittest.TestCase):
         self.assertIn("QA", result.reason)
 
     def test_non_testing_role_filtered(self) -> None:
-        job = make_job(title="Backend Software Engineer", description="Build REST APIs in Python")
+        # Product Manager and Data Analyst are not in either the testing or SDE lists
+        job = make_job(title="Product Manager", description="Define roadmap, work with stakeholders")
         self.assertIsNone(score_job(job, keywords=[]))
 
     # ── Remote signals ────────────────────────────────────────────────────────
@@ -186,6 +187,99 @@ class ScoreJobTests(unittest.TestCase):
         assert r_with is not None and r_without is not None
         self.assertGreater(r_with.score, r_without.score)
         self.assertIn("薪资", r_with.reason)
+
+
+# ── SDE / developer role tests ────────────────────────────────────────────────
+
+class ScoreJobSdeTests(unittest.TestCase):
+    def test_java_developer_detected(self) -> None:
+        job = make_job(title="Java Developer", description="Spring Boot, microservices, AWS")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("开发职位", result.reason)
+        self.assertGreaterEqual(result.score, 7)
+
+    def test_backend_engineer_detected(self) -> None:
+        job = make_job(title="Backend Engineer", description="Python, PostgreSQL, Docker")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("开发职位", result.reason)
+
+    def test_backend_software_engineer_detected(self) -> None:
+        job = make_job(title="Backend Software Engineer", description="REST API, Kafka, Kubernetes")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_application_developer_detected(self) -> None:
+        job = make_job(title="Application Developer", description="Java, Spring, Oracle DB")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_enterprise_application_developer_detected(self) -> None:
+        job = make_job(title="Enterprise Application Developer", description="Java EE, Hibernate")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_java_application_developer_detected(self) -> None:
+        job = make_job(title="Java Application Developer", description="Spring Boot, Maven, CI/CD")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_integration_engineer_detected(self) -> None:
+        job = make_job(title="Integration Engineer", description="REST API, Kafka, AWS")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_api_developer_detected(self) -> None:
+        job = make_job(title="API Developer", description="GraphQL, REST, Node.js")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_business_systems_developer_detected(self) -> None:
+        job = make_job(title="Business Systems Developer", description="Java, ERP, SQL")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_software_developer_detected(self) -> None:
+        job = make_job(title="Software Developer", description="Python, AWS, microservices")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+
+    def test_sde_not_double_scored_when_also_sdet(self) -> None:
+        # "Software Engineer in Test" should score as SDET, not both SDET + SDE
+        job = make_job(title="Software Engineer in Test", description="Python, Selenium")
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertIn("SDET", result.reason)
+        self.assertNotIn("开发职位", result.reason)
+
+    def test_non_engineering_sde_role_still_filtered_by_noise(self) -> None:
+        job = make_job(
+            title="Software Developer",
+            description="In-person required. Onsite required.",
+            is_remote_board=False,
+        )
+        self.assertIsNone(score_job(job, keywords=[]))
+
+    def test_sde_remote_board_qualifies(self) -> None:
+        job = make_job(title="Java Developer", description="Spring Boot, AWS", is_remote_board=True)
+        result = score_job(job, keywords=[])
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertGreaterEqual(result.score, 7)
+
+    def test_sde_keywords_raise_score(self) -> None:
+        job = make_job(
+            title="Backend Engineer",
+            description="Java, Spring Boot, Kafka, Kubernetes",
+        )
+        result_no_kw = score_job(job, keywords=[])
+        result_kw = score_job(job, keywords=["java", "kafka"])
+        assert result_no_kw is not None and result_kw is not None
+        self.assertGreater(result_kw.score, result_no_kw.score)
 
 
 if __name__ == "__main__":

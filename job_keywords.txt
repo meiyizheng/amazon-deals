@@ -1,16 +1,65 @@
-# Tech stack keywords for Remote SDE Testing jobs
+# Job keywords for Remote SDE / SDET / Testing jobs
 # Add terms you care about — each match raises the listing's score.
 # One term per line. Lines starting with # are ignored.
 
-# Languages
+# ── Languages ─────────────────────────────────────────────────────────────────
 python
 java
 typescript
 javascript
 golang
+kotlin
+scala
 c#
 
-# Test frameworks
+# ── Java / Spring ecosystem ───────────────────────────────────────────────────
+spring
+spring boot
+spring framework
+hibernate
+jpa
+maven
+gradle
+tomcat
+jvm
+
+# ── Backend / API ─────────────────────────────────────────────────────────────
+microservices
+rest api
+graphql
+grpc
+soap
+api gateway
+openapi
+
+# ── Messaging / Streaming ─────────────────────────────────────────────────────
+kafka
+rabbitmq
+activemq
+sqs
+event-driven
+
+# ── Databases ─────────────────────────────────────────────────────────────────
+mysql
+postgresql
+oracle
+mongodb
+redis
+elasticsearch
+
+# ── Cloud / DevOps ────────────────────────────────────────────────────────────
+aws
+azure
+gcp
+docker
+kubernetes
+ci/cd
+jenkins
+github actions
+gitlab ci
+terraform
+
+# ── Test frameworks ───────────────────────────────────────────────────────────
 pytest
 selenium
 playwright
@@ -20,30 +69,19 @@ junit
 testng
 jest
 robot framework
+mockito
 
-# CI/CD and infra
-ci/cd
-jenkins
-github actions
-gitlab ci
-docker
-kubernetes
-aws
-azure
-gcp
-
-# Testing specialties
+# ── Testing specialties ───────────────────────────────────────────────────────
 api testing
 performance testing
 load testing
 contract testing
-chaos engineering
-observability
 e2e testing
+integration testing
+tdd
+bdd
 
-# SDET-specific signals
+# ── SDET-specific signals ─────────────────────────────────────────────────────
 test architecture
 test strategy
 shift left
-tdd
-bdd
