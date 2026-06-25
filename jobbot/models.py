@@ -18,3 +18,7 @@ class Job:
     salary: str = ""
     # True when the source is a remote-specific job board (all listings are remote)
     is_remote_board: bool = False
+    # Minimum years of experience required (0 = unknown / not specified)
+    min_years_exp: int = 0
+    # Employment type string e.g. "Full-time", "Contract", "Part-time"
+    employment_type: str = ""

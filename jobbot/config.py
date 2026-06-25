@@ -74,12 +74,14 @@ FEEDS: list[dict] = [
 
 # ── Configurable thresholds ───────────────────────────────────────────────────
 
-MIN_SCORE_TO_NOTIFY = _env_int("JOB_MIN_SCORE", 7)
-MAX_ALERTS_PER_RUN  = _env_int("JOB_MAX_ALERTS", 15)
+MIN_SCORE_TO_NOTIFY  = _env_int("JOB_MIN_SCORE", 7)
+MAX_ALERTS_PER_RUN   = _env_int("JOB_MAX_ALERTS", 15)
 # Listings older than this many hours are skipped (0 = no age limit)
-MAX_JOB_AGE_HOURS   = _env_int("JOB_MAX_AGE_HOURS", 48)
+MAX_JOB_AGE_HOURS    = _env_int("JOB_MAX_AGE_HOURS", 48)
+# Skip listings that require more than this many years of experience (0 = no limit)
+MAX_EXPERIENCE_YEARS = _env_int("JOB_MAX_EXP_YEARS", 5)
 # Seconds to sleep between consecutive feed fetches
-FEED_FETCH_DELAY    = _env_float("JOB_FEED_FETCH_DELAY", 1.5)
+FEED_FETCH_DELAY     = _env_float("JOB_FEED_FETCH_DELAY", 1.5)
 
 SEEN_FILE      = _env_str("JOB_SEEN_FILE",      "data/seen_jobs.json")
 KEYWORDS_FILE  = _env_str("JOB_KEYWORDS_FILE",  "job_keywords.txt")
