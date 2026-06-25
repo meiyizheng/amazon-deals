@@ -28,13 +28,21 @@ def _tier(score: int) -> tuple[str, int]:
     return "🎯 可能匹配", 0x78909C
 
 
+def _apply_command(job: Job) -> str:
+    """Build a ready-to-run apply_main.py command for this job."""
+    title   = job.title.replace('"', '\\"')[:80]
+    company = job.company.replace('"', '\\"')[:50]
+    return (
+        f'python apply_main.py apply \\\n'
+        f'  --url     "{job.link}" \\\n'
+        f'  --title   "{title}" \\\n'
+        f'  --company "{company}"'
+    )
+
+
 def _build_embed(job: Job) -> dict:
     tier_label, color = _tier(job.score)
     title = f"{tier_label}  {job.title}"[:256]
-
-    # Description: reason tags
-    description_lines = [job.reason or "可能匹配"]
-    description = "\n".join(description_lines)[:1024]
 
     fields: list[dict] = [
         {"name": "🏢 公司", "value": job.company[:100] or "Unknown", "inline": True},
@@ -48,7 +56,7 @@ def _build_embed(job: Job) -> dict:
         fields.append({"name": "📋 类型", "value": job.employment_type[:80], "inline": True})
 
     if job.min_years_exp > 0:
-        fields.append({"name": "🗓 经验要求", "value": f"≤{job.min_years_exp} 年", "inline": True})
+        fields.append({"name": "🗓 经验", "value": f"≤{job.min_years_exp} 年", "inline": True})
 
     if job.salary:
         fields.append({"name": "💰 薪资", "value": job.salary[:100], "inline": True})
@@ -56,11 +64,19 @@ def _build_embed(job: Job) -> dict:
     fields.append({"name": "⭐ 评分", "value": str(job.score), "inline": True})
     fields.append({"name": "📌 来源", "value": job.source[:100], "inline": True})
 
+    # Full-width apply command — click the code block in Discord to copy it
+    cmd = _apply_command(job)
+    fields.append({
+        "name": "📤 投递命令（点击代码块一键复制，粘贴到终端运行）",
+        "value": f"```sh\n{cmd}\n```",
+        "inline": False,
+    })
+
     return {
         "title": title,
         "url": job.link,
         "color": color,
-        "description": description,
+        "description": (job.reason or "可能匹配")[:1024],
         "fields": fields,
         "footer": {"text": _FOOTER_TEXT},
     }
@@ -116,9 +132,12 @@ def format_job(job: Job) -> str:
         f"  {job.company}" + (f" | {job.location}" if job.location else ""),
         f"  Score: {job.score}  |  {job.reason[:200]}",
     ]
+    if job.employment_type:
+        parts.append(f"  Type: {job.employment_type}")
     if job.salary:
         parts.append(f"  Salary: {job.salary}")
     parts.append(f"  {job.link}")
+    parts.append(f"  $ {_apply_command(job).replace(chr(10), ' ').replace('  ', ' ')}")
     return "\n".join(parts)
 
 
