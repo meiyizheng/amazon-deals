@@ -11,6 +11,7 @@ from jobbot.config import (
 from jobbot.fetcher import fetch_all
 from jobbot.filtering import score_job
 from jobbot.discord_notify import send_discord
+from jobbot.linkedin_fetcher import fetch_linkedin_jobs, DEFAULT_QUERIES
 from dealbot.keywords import load_keywords   # generic keyword loader, safe to reuse
 from dealbot.storage import load_seen, save_seen  # generic dedup cache, safe to reuse
 
@@ -22,11 +23,21 @@ def main() -> None:
         print("  Name:  JOB_DISCORD_WEBHOOK")
         print("  Value: your Discord webhook URL (https://discord.com/api/webhooks/...)")
         sys.exit(1)
+
     keywords = load_keywords(KEYWORDS_FILE)
     seen = load_seen(SEEN_FILE)
 
-    raw_jobs = fetch_all(FEEDS)
-    print(f"Fetched {len(raw_jobs)} raw job listings")
+    # Fetch from RSS feeds
+    rss_jobs = fetch_all(FEEDS)
+    print(f"Fetched {len(rss_jobs)} listings from RSS feeds")
+
+    # Fetch from LinkedIn public guest API (no login required)
+    print("Fetching LinkedIn jobs...")
+    linkedin_jobs = fetch_linkedin_jobs(queries=DEFAULT_QUERIES)
+    print(f"Fetched {len(linkedin_jobs)} listings from LinkedIn")
+
+    raw_jobs = rss_jobs + linkedin_jobs
+    print(f"Total: {len(raw_jobs)} raw listings")
 
     evaluated: list = []
     alerts: list = []

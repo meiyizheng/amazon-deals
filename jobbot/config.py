@@ -49,27 +49,35 @@ REMOTE_BOARDS: frozenset[str] = frozenset([
     "arbeitnow.com",
     "jobspresso.co",
     "remote.co",
+    "remotive.io",
 ])
 
 FEEDS: list[dict] = [
     # ── RemoteOK ──────────────────────────────────────────────────────────────
-    # Category feeds let us target QA/test roles specifically
-    {"url": "https://remoteok.com/remote-qa-jobs.rss",       "remote_board": True},
-    {"url": "https://remoteok.com/remote-test-jobs.rss",     "remote_board": True},
-    {"url": "https://remoteok.com/remote-sdet-jobs.rss",     "remote_board": True},
-    {"url": "https://remoteok.com/remote-dev+test-jobs.rss", "remote_board": True},
+    # Testing / QA categories
+    {"url": "https://remoteok.com/remote-qa-jobs.rss",          "remote_board": True},
+    {"url": "https://remoteok.com/remote-test-jobs.rss",        "remote_board": True},
+    {"url": "https://remoteok.com/remote-sdet-jobs.rss",        "remote_board": True},
+    {"url": "https://remoteok.com/remote-dev+test-jobs.rss",    "remote_board": True},
+    # SDE / backend categories
+    {"url": "https://remoteok.com/remote-java-jobs.rss",        "remote_board": True},
+    {"url": "https://remoteok.com/remote-backend-jobs.rss",     "remote_board": True},
+    {"url": "https://remoteok.com/remote-engineer-jobs.rss",    "remote_board": True},
 
     # ── WeWorkRemotely ────────────────────────────────────────────────────────
-    # Programming category covers SDET / automation roles
     {"url": "https://weworkremotely.com/categories/remote-programming-jobs.rss", "remote_board": True},
-    {"url": "https://weworkremotely.com/remote-jobs.rss",    "remote_board": True},
+    {"url": "https://weworkremotely.com/remote-jobs.rss",       "remote_board": True},
 
     # ── Himalayas ─────────────────────────────────────────────────────────────
-    {"url": "https://himalayas.app/jobs/rss",                "remote_board": True},
+    {"url": "https://himalayas.app/jobs/rss",                   "remote_board": True},
 
     # ── Arbeitnow ─────────────────────────────────────────────────────────────
-    # Tech-focused, has a good mix of remote engineering roles
-    {"url": "https://www.arbeitnow.com/feed",                "remote_board": True},
+    {"url": "https://www.arbeitnow.com/feed",                   "remote_board": True},
+
+    # ── Remotive ──────────────────────────────────────────────────────────────
+    # Curated remote tech jobs (verified working URLs)
+    {"url": "https://remotive.com/remote-jobs/feed/software-development", "remote_board": True},
+    {"url": "https://remotive.com/remote-jobs/feed/qa",                   "remote_board": True},
 ]
 
 # ── Configurable thresholds ───────────────────────────────────────────────────
